@@ -1,0 +1,98 @@
+
+body {
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+}
+
+/* For the control boxes */
+#controls-container {
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    transform: translate(-50%, 0);
+
+    width: 60%;
+    height: 64px;
+
+    display: flex;
+    gap: 2rem;
+    justify-content: center;
+}
+
+.controls {
+    height: 64px;
+
+    box-shadow: #0008 0 0 2rem;
+    border-radius: 8px 8px 0 0;
+
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0 1rem;
+}
+
+.controls > div {
+    height: 48px;
+
+    background-color: #EEE;
+    border-radius: 4px;
+}
+
+/* For box name and text fields */
+h2 {
+    font-size: 1.5rem;
+    padding: 0 calc((64px - 1.5rem) / 2);
+    margin: 0;
+}
+
+/* For brush selector */
+#brush {
+    display: flex;
+}
+
+#brush > img {
+    opacity: 50%;
+}
+
+#brush > img:hover {
+    scale: 125%;
+}
+
+#brush > img.selected {
+    opacity: 100%;
+}
+
+
+/* For color selector */
+#color {
+    display: flex;
+    align-items: center;
+}
+
+#color-selector {
+    margin-left: 16px;
+    width: 32px; height: 32px;
+    border: none;
+    outline: none;
+}
+
+/* For brush size selector */
+#size {
+    display: flex;
+    align-items: center;
+}
+
+#small-dot, #large-dot {
+    background-color: #000;
+    border-radius: 100%;
+}
+
+#small-dot { width: 8px; height: 8px; margin: calc(24px - 4px); }
+#large-dot { width: 32px; height: 32px; margin: calc(24px - 16px); }
+
+
+/* For selecting the board bro */
+#board-select {
+    display: flex;
+    width: max-content;
+    align-items: center;
+}

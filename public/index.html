@@ -8,6 +8,43 @@
     <link rel="stylesheet" href="./style.css">
 </head>
 <body>
+    <div id="controls-container">
+        <div class="controls" id="paint">
+            <h2>Paint</h2>
+
+            <div id="brush">
+                <img src="/asset/icon/brush/pen.svg" id="pen" class="selected" />
+                <img src="/asset/icon/brush/paintbrush.svg" id="paintbrush" />
+                <img src="/asset/icon/brush/spraypaint.svg" id="spraypaint" />
+
+                <img src="/asset/icon/brush/eraser.svg" id="eraser" />
+            </div>
+
+            <div id="color">
+                <input type="color" id="color-selector" value="#E90000">
+                <h2 id="color-hex">#E90000</h2>
+            </div>
+
+            <div id="size">
+                <div id="small-dot"></div>
+                <input type="range" min="1" max="64" />
+                <div id="large-dot"></div>
+            </div>
+        </div>
+
+        <div class="controls" id="board">
+            <h2>Boards</h2>
+
+            <div id="board-select">
+                <img src="/asset/icon/action/left.svg" id="prev-board" />
+                <h2 id="board-index">0 / 0</h2>
+                <img src="/asset/icon/action/right.svg" id="next-board" />
+            </div>
+
+            <img src="/asset/icon/action/delete.svg" id="board-delete" />
+            <img src="/asset/icon/action/new.svg" id="board-create" />
+        </div>
+    </div>
     <canvas></canvas>
 </body>
 </html>
