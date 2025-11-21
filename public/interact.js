@@ -13,10 +13,12 @@ const Input = new class {
             this.mouse_pos_x = e.clientX;
             this.mouse_pos_y = e.clientY;
 
+            // Replace with switch statement for different tools
             if (this.left_click)
                 Viewer.move_by(e.movementX, e.movementY);
         });
 
+        // Do not fire if above an UI element such as controls
         window.addEventListener("mousedown", (e) => {
             if (e.button == 0)
                 this.left_click = true;
@@ -105,6 +107,8 @@ const Viewer = new class {
         // Scale by change in scale and move canvas in opposite direction
         x_delta *= delta_scale;
         y_delta *= delta_scale;
+
+        // fix the fact that this is wrong
 
         // Move
         this.move_by(x_delta, y_delta);
