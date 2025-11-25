@@ -40,6 +40,7 @@ const http_server = http.createServer(app);
 
 // WebSockets
 import WebSocket, { WebSocketServer } from 'ws';
+import { readFileSync } from "fs";
 global.wss = new WebSocketServer({ noServer: true });
 
 http_server.on('upgrade', upgrade_websocket);
@@ -63,7 +64,14 @@ function upgrade_websocket(request, socket, head) {
     });
 }
 
+let clients = {};
+let client_id = 0;
+
 wss.on('connection', (ws, req) => {
+
+    client_id++;
+    const id = client_id;
+    clients[id] = ws;
 
     req.session.ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
 
@@ -99,10 +107,36 @@ wss.on('connection', (ws, req) => {
 
     ws.on('close', () => {
         // Handle connection close
-        Stats.log("clients", -1);
+        delete clients[id];
     });
 });
 
+function broadcast(data) {
+    data = {
+        type: 0,
+        sx: Math.floor(Math.abs(Math.sin(performance.now() / 1000)) * 1280),
+        sy: Math.floor(Math.random() * 720),
+        ex: Math.floor(Math.abs(Math.sin(performance.now() / 1000)) * 1280),
+        ey: Math.floor(Math.random() * 720),
+        size: Math.floor(2 + Math.random() * 18),
+        color: "#" + Math.floor(Math.random() * 0xFFFFFF).toString(16)
+    };
+    data = JSON.stringify(data);
+    for (let id in clients) {
+        clients[id].send(data);
+    }
+    console.log("sent stuff to " + Object.keys(clients).length + " peoples")
+}
+
+setInterval(broadcast, 1);
+
+
+// Allow clients to get Board class, so that what happens on server and on client is perfectly synced.
+app.get("/board.js", (req, res) => {
+    const file = readFileSync("./src/board.js");
+    res.type("text/javascript");
+    res.send(file);
+});
 
 // Start server
 app.use(express.static(global.public_path));
