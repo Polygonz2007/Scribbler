@@ -110,7 +110,6 @@ function broadcast(data) {
     for (let id in clients) {
         clients[id].send(data);
     }
-    console.log("sent stuff to " + Object.keys(clients).length + " peoples")
 }
 
 // get data baout bouard
