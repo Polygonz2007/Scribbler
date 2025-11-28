@@ -136,7 +136,6 @@ const Comms = new class {
     async on_ws_message(event) {
         let data = await event.data;
         data = await JSON.parse(data);
-        console.log(data);
     
         // If no req id pipe into updates thingy
         if (!data.req_id) {

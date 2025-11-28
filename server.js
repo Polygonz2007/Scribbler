@@ -67,6 +67,8 @@ function upgrade_websocket(request, socket, head) {
 let clients = {};
 let client_id = 0;
 
+let board = new Board(2560, 1440);
+
 wss.on('connection', (ws, req) => {
 
     client_id++;
@@ -76,8 +78,6 @@ wss.on('connection', (ws, req) => {
     req.session.ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
 
     ws.on('message', async (data, isBinary) => {
-        const start_time = performance.now();
-
         // Translate
         data = isBinary ? data : data.toString();
         data = JSON.parse(data);
@@ -89,20 +89,14 @@ wss.on('connection', (ws, req) => {
         // Switch case
         let result;
         switch (type) {
-            case 0: result = await wsi.next_buffer(client, data); break;
-
-            case 1: result = await wsi.set_track(client, data); break;
-            case 2: result = await wsi.set_format(client, data); break;
-
-            case 4: result = await wsi.seek_to(client, data); break;
-            case 8: result = await wsi.log_played(client, data); break;
+            case "stroke":
+                board.create_stroke(data.tool, data.start, data.end, data.size, data.color);
+                delete data.req_id;
+                broadcast(data); // Everything but without req id
+                result = {status: true};
         }
 
-        const end_time = performance.now();
-        //console.log(`${(end_time - start_time).toFixed(2)}ms => Req #${req_id} from ${req.session.ip} of type ${type}`);
-
-        Stats.log("ws_req");
-        ws.send(result);
+        ws.send(JSON.stringify(result));
     });
 
     ws.on('close', () => {
@@ -112,15 +106,6 @@ wss.on('connection', (ws, req) => {
 });
 
 function broadcast(data) {
-    data = {
-        type: 0,
-        sx: Math.floor(Math.abs(Math.sin(performance.now() / 1000)) * 1280),
-        sy: Math.floor(Math.random() * 720),
-        ex: Math.floor(Math.abs(Math.sin(performance.now() / 1000)) * 1280),
-        ey: Math.floor(Math.random() * 720),
-        size: Math.floor(2 + Math.random() * 18),
-        color: "#" + Math.floor(Math.random() * 0xFFFFFF).toString(16)
-    };
     data = JSON.stringify(data);
     for (let id in clients) {
         clients[id].send(data);
@@ -128,14 +113,13 @@ function broadcast(data) {
     console.log("sent stuff to " + Object.keys(clients).length + " peoples")
 }
 
-setInterval(broadcast, 1);
-
-
-// Allow clients to get Board class, so that what happens on server and on client is perfectly synced.
-app.get("/board.js", (req, res) => {
-    const file = readFileSync("./src/board.js");
-    res.type("text/javascript");
-    res.send(file);
+// get data baout bouard
+app.get("/board/:id", (req, res) => {
+    return res.send(JSON.stringify({
+        width: board.width,
+        height: board.height,
+        data: board.canvas.toDataURL()
+    }));
 });
 
 // Start server

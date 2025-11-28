@@ -3,12 +3,25 @@
 import Board from "/board.js";
 import Comms from "/comms.js";
 
-const board = new Board(1280, 720);
+export const board = new Board();
+console.log("dip")
+await board.load();
+
+export const State = new class {
+    constructor() {
+        this.tool = "grab";
+        this.size = 4;
+        this.color = "#FF0000";
+
+        this.min_dist = 3; // prevent spamming and make it look nicer
+    }
+}
 
 window.addEventListener("serverUpdate", (evt) => {
     const data = evt.detail;
-    console.log("taishi")
-    console.log(data)
 
-    board.stroke(data.type, data.sx, data.sy, data.ex, data.ey, data.size, data.color)
-})
+    switch (data.type) {
+        case "stroke":
+            board.draw_stroke(data.tool, data.start, data.end, data.size, data.color);
+    }
+});

@@ -1,16 +1,19 @@
 // Defines a "board" class, which stores a canvas and functions for manipulating it.
 // Many "baords" are stored on the server to allow clients to create, view, edit and delete them.
 
-import { createCanvas } from "canvas";
+import Comms from "/comms.js";
 
 const Board = class {
     constructor(width, height) {
-        this.width = width;
-        this.height = height;
+        this.width = width || 1;
+        this.height = height || 1;
         this.id = 0;
+        
+        // Use on screen canvas and use comms
+        this.canvas = document.querySelector("canvas");
+        this.canvas.width = this.width;
+        this.canvas.height = this.height;
 
-        // Use cirtual canvas and nothing more
-        this.canvas = createCanvas(this.width, this.height);
         this.context = this.canvas.getContext("2d");
 
         // Fill white
@@ -18,8 +21,42 @@ const Board = class {
         this.context.fillRect(0, 0, this.width, this.height);
     }
 
+    async load() {
+        // Get image
+        console.log("dap")
+        const image_data = await Comms.fetch_json("/board/1");
+        console.log("dop")
+
+        // Use on screen canvas and use comms
+        this.canvas = document.querySelector("canvas");
+        this.canvas.width = image_data.width;
+        this.canvas.height = image_data.height;
+
+        this.context = this.canvas.getContext("2d");
+
+        // Fill with image
+        const img = new Image();
+        img.src = image_data.data;
+        console.log(image_data.data)
+        img.onload = () => {
+            this.context.drawImage(img, 0, 0);
+        };
+    }
+
     async create_stroke(tool, start, end, size, color) {
-        this.draw_stroke(tool, start, end, size, color);
+        // Tell server about this
+        const result = await Comms.ws_req({
+            type: "stroke",
+            tool: tool,
+            board_id: this.id,
+            start: start,
+            end: end,
+            size: size,
+            color: color
+        });
+
+        if (result.status == true)
+            return true; // YAY!!!
     }
 
     draw_stroke(tool, start, end, size, color) {
