@@ -4,7 +4,6 @@ import Board from "/board.js";
 import Comms from "/comms.js";
 
 export const board = new Board();
-console.log("dip")
 await board.load();
 
 export const State = new class {
@@ -13,7 +12,7 @@ export const State = new class {
         this.size = 4;
         this.color = "#FF0000";
 
-        this.min_dist = 3; // prevent spamming and make it look nicer
+        this.min_dist = 2; // prevent way too many ws requests, and smooth out line slightly
     }
 }
 

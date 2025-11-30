@@ -23,9 +23,7 @@ const Board = class {
 
     async load() {
         // Get image
-        console.log("dap")
         const image_data = await Comms.fetch_json("/board/1");
-        console.log("dop")
 
         // Use on screen canvas and use comms
         this.canvas = document.querySelector("canvas");
@@ -37,13 +35,15 @@ const Board = class {
         // Fill with image
         const img = new Image();
         img.src = image_data.data;
-        console.log(image_data.data)
         img.onload = () => {
             this.context.drawImage(img, 0, 0);
         };
     }
 
     async create_stroke(tool, start, end, size, color) {
+        // Clean up a bit
+        size = Math.ceil(size);
+
         // Tell server about this
         const result = await Comms.ws_req({
             type: "stroke",

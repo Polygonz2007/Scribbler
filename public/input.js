@@ -8,12 +8,17 @@ const Input = new class {
         this.pos = [0, 0];
         this.left_click = false;
         this.right_click = false;
+        this.keys = [];
 
-        // Add events
+        // Cursor
+        this.cursor = document.querySelector("#cursor");
+
+        // Mouse events
         window.addEventListener("mousemove", (e) => {
             this.pos = [e.clientX, e.clientY];
+            this.cursor.style.left  = `${e.clientX}px`;
+            this.cursor.style.top = `${e.clientY}px`;
 
-            // Replace with switch statement for different tools
             if (this.left_click) {
                 switch (State.tool) {
                     case "grab":
@@ -29,7 +34,7 @@ const Input = new class {
                         ];
 
                         // Use pythagoras to find distance moved. Instead of having to square root (slow), square min distance to get same result faster.
-                        if (delta_pos[0] * delta_pos[0] + delta_pos[1] + delta_pos[1] > State.min_dist * State.min_dist) {
+                        if (delta_pos[0] * delta_pos[0] + delta_pos[1] * delta_pos[1] > State.min_dist * State.min_dist) {
                             // Translate screen space to board space
                             const start = Viewer.screen_to_canvas_coords(this.prev_pos);
                             const end = Viewer.screen_to_canvas_coords(this.pos);
@@ -45,13 +50,18 @@ const Input = new class {
             } else {
                 // Make sure that new stroke always starts at start of click
                 this.prev_pos = this.pos;
-            }
 
-                
+                // Move when holding space
+                if (this.isKeyDown(" "))
+                    Viewer.move_by(e.movementX, e.movementY);
+            }
         });
 
         // Do not fire if above an UI element such as controls
         window.addEventListener("mousedown", (e) => {
+            if (e.target.id != "main-canvas")
+                return;
+
             if (e.button == 0) {
                 this.left_click = true;
 
@@ -62,22 +72,33 @@ const Input = new class {
                 const press_pos = Viewer.screen_to_canvas_coords(this.pos);
                 board.create_stroke("pen", press_pos, press_pos, State.size, State.color);
             }
-            
-            if (e.button == 2)
-                this.right_click = true;
         });
 
+        // Release
         window.addEventListener("mouseup", (e) => {
             if (e.button == 0)
                 this.left_click = false;
-
-            if (e.button == 2)
-                this.right_click = false;
         });
 
+        // Scaling
         window.addEventListener("wheel", (e) => {
-            Viewer.scale_by(1 - e.deltaY * 0.001, this.pos);
-        })
+            Viewer.scale_by(1 - (e.deltaY * 0.001), this.pos);
+            Input.cursor.style.width  = `${State.size * Viewer.scale}px`;
+            Input.cursor.style.height = `${State.size * Viewer.scale}px`;
+        });
+
+        // Keyboard events
+        window.addEventListener("keydown", (e) => {
+            this.keys[e.key] = true;
+        });
+
+        window.addEventListener("keyup", (e) => {
+            this.keys[e.key] = false;
+        });
+    }
+
+    isKeyDown(key) {
+        return this.keys[key];
     }
 }
 
@@ -98,12 +119,27 @@ for (let i = 0; i < tools.length; i++) {
 
 // Change color
 const color_picker = document.querySelector("input[type=color]");
+const color_picker_text = document.querySelector("#color-hex");
 color_picker.addEventListener("input", () => {
     State.color = color_picker.value;
+    color_picker_text.innerText = State.color;
+    Input.cursor.style.backgroundColor = `${State.color}22`; // Color at 0x22 opacity
 });
 
 // Change size
 const size_picker = document.querySelector("input[type=range]");
 size_picker.addEventListener("input", () => {
     State.size = size_picker.value;
+    Input.cursor.style.width  = `${State.size * Viewer.scale}px`;
+    Input.cursor.style.height = `${State.size * Viewer.scale}px`;
 });
+
+// On startup
+State.color = color_picker.value;
+State.size = size_picker.value;
+
+Input.cursor.style.backgroundColor = `${State.color}22`; // Color at 0x22 opacity
+Input.cursor.style.width  = `${State.size}px`;
+Input.cursor.style.height = `${State.size}px`;
+
+color_picker_text.innerText = State.color;

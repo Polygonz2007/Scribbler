@@ -8,7 +8,7 @@ const Viewer = new class {
         this._canvas; // The canvas being displayed
 
         // At 0, 0 and scale 1, the canvas is centered and same size in pixels as screen.
-        this.pos = [0, 0]; // NOT scaled.
+        this.pos = [0, 0]; // Scaled.
         this.scale = 1;
 
         // Get screen dimensions
@@ -46,9 +46,9 @@ const Viewer = new class {
     screen_to_canvas_coords(pos) {
         let coords = [pos[0], pos[1]];
 
-        // Translate
-        coords[0] -= this.pos[0] + (this.screen[0] - this.canvas_size[0]) * 0.5;
-        coords[1] -= this.pos[1] + (this.screen[1] - this.canvas_size[1]) * 0.5;
+        // Screen to canvas pos
+        coords[0] += -this.pos[0] + ((this.canvas_size[0] * this.scale) - this.screen[0]) * 0.5;
+        coords[1] += -this.pos[1] + ((this.canvas_size[1] * this.scale) - this.screen[1]) * 0.5;
 
         // Scale
         coords[0] /= this.scale;
@@ -66,8 +66,8 @@ const Viewer = new class {
 
     move_by(xpx, ypx) {
         // Apply scale
-        xpx *= 1 / this.scale;
-        ypx *= 1 / this.scale;
+        xpx /= this.scale * 0.5;
+        ypx /= this.scale * 0.5;
 
         // Move
         this.pos = [this.pos[0] + xpx, this.pos[1] + ypx];
@@ -80,6 +80,7 @@ const Viewer = new class {
         // Scale
         const prev_scale = this.scale;
         this.scale *= scale;
+        console.log(`Scaled by ${scale}x and are now at ${this.scale}x scale total`)
         const delta_scale = this.scale - prev_scale;
 
         // Translate cursor pos to viewer space
@@ -97,7 +98,8 @@ const Viewer = new class {
         // fix the fact that this is wrong
 
         // Move
-        this.move_by(x_delta, y_delta);
+        //this.move_by(x_delta, y_delta);
+        this.apply()
     }
 
     apply() {

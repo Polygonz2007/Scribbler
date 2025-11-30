@@ -4,6 +4,7 @@ body {
     margin: 0;
 
     font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    user-select: none;
 }
 
 /* For the control boxes */
@@ -107,9 +108,22 @@ h2 {
 
 
 
-/* tenporary*/
+/* Canvas and brush cursor */
 canvas {
     background-color: white;
     position: fixed;
     box-shadow: #0001 0 0 7rem;
+}
+
+#cursor {
+    position: fixed;
+    top: 0; left: 0;
+    width: 4px; height: 4px;
+
+    background-color: #0002;
+    border: 1px solid #0004;
+    border-radius: 50%;
+    pointer-events: none;
+
+    transform: translate(-50%, -50%);
 }
