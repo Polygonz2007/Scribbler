@@ -66,8 +66,8 @@ const Viewer = new class {
 
     move_by(xpx, ypx) {
         // Apply scale
-        xpx /= this.scale * 0.5;
-        ypx /= this.scale * 0.5;
+        //xpx /= this.scale * 0.5;
+        //ypx /= this.scale * 0.5;
 
         // Move
         this.pos = [this.pos[0] + xpx, this.pos[1] + ypx];
